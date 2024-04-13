@@ -1,8 +1,8 @@
 import styles from "./ContactForm.module.css";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import { useId } from "react";
-import { nanoid } from "nanoid";
 import * as Yup from "yup";
+import { addContacts } from "../../redux/contactsSlice";
+import { useDispatch } from "react-redux";
 
 const contactSchema = Yup.object().shape({
   name: Yup.string()
@@ -17,43 +17,34 @@ const contactSchema = Yup.object().shape({
     .required("Phone number is required"),
 });
 
-const ContactForm = ({ onAdd }) => {
-  const nameFieldId = useId();
-  const numberFieldId = useId();
+const INITIAL_FORM_DATA = {
+  name: "",
+  number: "",
+};
 
-  const handleSubmit = (values, actions) => {
-    values.id = nanoid();
-    onAdd(values);
-    actions.resetForm();
+const ContactForm = () => {
+  const dispatch = useDispatch();
+
+  const handleSubmit = (data, formActions) => {
+    dispatch(addContacts(data));
+    formActions.resetForm();
   };
+
   return (
     <Formik
-      initialValues={{
-        name: "",
-        number: "",
-      }}
-      onSubmit={handleSubmit}
+      initialValues={INITIAL_FORM_DATA}
       validationSchema={contactSchema}
+      onSubmit={handleSubmit}
     >
       <Form className={styles.form}>
         <div className={styles.inputContainer}>
-          <label htmlFor={nameFieldId}>Name</label>
-          <Field
-            type="text"
-            className={styles.input}
-            name="name"
-            id={nameFieldId}
-          ></Field>
+          <label>Name</label>
+          <Field type="text" className={styles.input} name="name"></Field>
           <ErrorMessage className={styles.error} name="name" component="span" />
         </div>
         <div className={styles.inputContainer}>
-          <label htmlFor={numberFieldId}>Number</label>
-          <Field
-            type="tel"
-            className={styles.input}
-            name="number"
-            id={numberFieldId}
-          ></Field>
+          <label>Number</label>
+          <Field type="tel" className={styles.input} name="number"></Field>
           <ErrorMessage
             className={styles.error}
             name="number"
